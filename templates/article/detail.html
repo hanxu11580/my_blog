@@ -1,0 +1,174 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load custom %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    文章详情
+{% endblock title %}
+
+<style type="text/css">
+    body{
+        margin: 0;
+    }
+    .zhezhao{
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        background: #000;
+        width: 100%;
+        height: 100%;
+        opacity: 0.5;
+    }
+    .tankuang{
+        position: relative;
+        background: #fff;
+        width: 50%;
+        height: 80%;
+        border-radius: 5px;
+        margin: 5% auto;
+    }
+    #header{
+        height: 40px;
+    }
+    #header-right{
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        border-radius: 5px;
+        background: red;
+        color: #fff;
+        right: 5px;
+        top: 5px;
+        text-align: center;
+    }
+</style>
+
+
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 文章详情 -->
+<div class="container">
+    <div class="row">
+        <!-- 标题及作者 -->
+        <h1 class="col-12 mt-4 mb-4">{{ article.title }}</h1>
+        <div class="col-12 alert alert-success">作者：{{ article.author }}
+            <a>阅读量:{{ article.views }}</a>
+            <a href="#" onclick="confirm_delete()">删除</a>
+            <a href="{% url 'article:article_update' article.id %}">修改文章</a>
+
+        </div>
+        <!-- 文章正文 -->
+        <div class="col-12">
+            <p>{{ article.body|safe }}</p>
+        </div>
+
+        <hr>
+        {% if request.session.is_login %}
+            <div>
+                <form
+                    action="{% url 'comment:post_comment' article.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="body">
+                            <strong>
+                                我也要发言：
+                            </strong>
+                        </label>
+{#                        <textarea type="text" class="form-control" id="body" name="body" rows="2"></textarea>#}
+                        <div>
+                            {{ comment_form.media }}
+                            {{ comment_form.body }}
+                        </div>
+                    </div>
+                    <!-- 提交按钮 -->
+                    <button type="submit" class="btn btn-primary ">发送</button>
+                </form>
+            </div>
+            <br>
+        {% else %}
+            <br>
+            <h5 class="row justify-content-center" >
+                请<a href="{% url 'userprofile:login' %}">--->登录<---</a>后回复
+            </h5>
+            <br>
+        {% endif %}
+
+        <!-- 显示评论 -->
+<!-- 原有的一级评论 -->
+        <h4>共有{{ comments.count }}条评论</h4>
+{#        <div>#}
+{#            {% for comment in comments %}#}
+{#                <hr>#}
+{#                <p>#}
+{#                    <strong style="color: pink">#}
+{#                        {{ comment.user }}#}
+{#                    </strong> 于#}
+{#                    <span style="color: #66afe9">#}
+{#                        {{ comment.created|date:"Y-m-d H:i:s" }}#}
+{#                    </span> 时说：#}
+{#                </p>#}
+{#                <pre style="font-family: inherit; font-size: 1em;">{{ comment.body|safe }}</pre>#}
+{#            {% endfor %}#}
+{#        </div>#}
+        {% build_comment_tree comments %}
+
+
+
+
+
+
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    function confirm_delete() {
+        layer.open({
+            title: "确认删除",
+            content: "删除此文章?",
+            yes: function (index, layero) {
+                location.href='{% url 'article:article_delete' article.id %}'
+            }
+        })
+    }
+</script>
+
+<script type="text/javascript">
+    document.getElementById('zhezhao').style.display="none";
+    function dianwo(){
+        document.getElementById('zhezhao').style.display="";
+    }
+    function hidder(){
+        document.getElementById('zhezhao').style.display="none";
+    }
+</script>
+
+
+
+{% block script %}
+    <script>
+        $(".django-ckeditor-widget").removeAttr('style');
+        {#清除ckeditor中的inline-block的样式，其阻碍了自适应效果#}
+    </script>
+
+
+{% endblock %}
+
+
+
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    搜索结果
+{% endblock title %}
+
+
+{% block content %}
+<style>
+#container {width: 100%;}
+#photo {float: left; width: 25%;}
+#content {float: right; width: 75%;}
+</style>
+
+<!-- 定义放置文章标题的div容器 -->
+<div class="container">
+    <div class="row mt-2">
+        {% if articles %}
+            <h4><span style="color: red">"{{ search }}"</span>的搜索结果如下：</h4>
+            <hr>
+        {% else %}
+            <h4>暂无<span style="color: red">"{{ search }}"</span>有关的文章。</h4>
+            <hr>
+        {% endif %}
+
+
+        {% for article in articles %}
+<div id="container">
+        <div id="photo" class="col-3">
+            <img src="{{ article.avatar.url }}" alt="avatar" style="max-width:100%; border-radius: 20px">
+        </div>
+        <!-- 文章内容 -->
+        <div id="content" class="col-4 mb-4">
+        <!-- 卡片容器 -->
+            <div class="card h-100">
+                <!-- 标题 -->
+                <h4 class="card-header">{{ article.title }}</h4>
+                <!-- 摘要 -->
+                <div class="card-body">
+                    <p class="card-text">{{ article.body|safe|truncatechars_html:20 }}</p>
+                    <p>
+                        <!-- 附加信息 -->
+                        <span style="color: green;">
+                            {{ article.views }} 浏览&nbsp;&nbsp;&nbsp;
+                        </span>
+                        <span style="color: blue;">
+                            {{ article.created|date:'Y-m-d' }} 发布&nbsp;&nbsp;&nbsp;
+                        </span>
+                        <span style="color: darkred;">
+                            {{ article.updated|date:'Y-m-d' }} 更新
+                        </span>
+                    </p>
+                </div>
+                <!-- 注脚 -->
+                <div class="card-footer">
+                    <a href="{% url 'article:article_detail' article.id %}" class="btn btn-primary">阅读本文</a>
+                </div>
+
+            </div>
+        </div>
+</div>
+        <hr style="width: 100%;"/>
+        {% endfor %}
+
+
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load article_tags %}
+
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    首页
+{% endblock title %}
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<style>
+#container {width: 100%;}
+#photo {float: left; width: 25%;}
+#content {float: right; width: 75%;}
+</style>
+<!-- 定义放置文章标题的div容器 -->
+<div class="container">
+    <div class="row mt-2">
+    <main class="col-md-8">
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                    <li>
+                      <div class="dropdown">
+                          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            最近浏览
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            {% for i in redis_lists %}
+                                <li><a href="{% url 'article:article_detail' i.id %}">{{ i.title }}</a></li>
+                            {% endfor %}
+                          </ul>
+                       </div>
+                    </li>
+
+                    <li class="col-auto mr-auto">
+                        <form class="form-inline" method="POST" action="{% url 'article:article_search' %}">
+                            {% csrf_token %}
+                            <label class="sr-only">搜索</label>
+                            <input type="text"
+                                class="form-control mb-2 mr-sm-2"
+                                name="search"
+                                placeholder="搜索文章..."
+                                required
+                            >
+                        </form>
+                    </li>
+
+            </ol>
+
+        </nav>
+
+
+        {% for article in articles %}
+<div id="container">
+        <div id="photo" class="col-3">
+            <img src="{{ article.avatar.url }}" alt="avatar" style="max-width:100%; border-radius: 20px">
+        </div>
+        <!-- 文章内容 -->
+        <div id="content" class="col-4 mb-4">
+        <!-- 卡片容器 -->
+            <div class="card h-100">
+                <!-- 标题 -->
+                <h4 class="card-header">{{ article.title }}</h4>
+                <!-- 摘要 -->
+                <div class="card-body">
+                    <p class="card-text">{{ article.body|safe|truncatechars_html:20 }}</p>
+                    <p>
+                        <!-- 附加信息 -->
+                        <span style="color: green;">
+                            {{ article.views }} 浏览&nbsp;&nbsp;&nbsp;
+                        </span>
+                        <span style="color: blue;">
+                            {{ article.created|date:'Y-m-d' }} 发布&nbsp;&nbsp;&nbsp;
+                        </span>
+                        <span style="color: darkred;">
+                            {{ article.updated|date:'Y-m-d' }} 更新
+                        </span>
+                    </p>
+                </div>
+                <!-- 注脚 -->
+                <div class="card-footer">
+                    <a href="{% url 'article:article_detail' article.id %}" class="btn btn-primary">阅读本文</a>
+                </div>
+
+            </div>
+        </div>
+</div>
+        <hr style="width: 100%;"/>
+        {% endfor %}
+
+
+
+    <!-- 显示分页功能 -->
+        <nav aria-label="Page navigation" >
+            <ul class="pagination">
+                {{ page_info.pager|safe }}
+            </ul>
+        </nav>
+    </main>
+    <!-- 其他的模板 要是不用了 记得把base.html 的css和js删除，还有上面的main -->
+    <aside class="col-md-4">
+        <div class="widget widget-recent-posts">
+            <a class="widget-title" href="{% url 'article:article_list' %}">最新文章</a>
+            <ul>
+                {% for article in new_article_list %}
+                <li>
+                    <a href="{% url 'article:article_detail' article.id %}">{{ article.title }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="widget widget-archives">
+            <h3 class="widget-title">归档</h3>
+            {% file as date_list %}
+            <ul>
+                {% for date in date_list %}
+                    <li>
+                        <a href="{% url 'article:article_file' date.year date.month %}">{{ date.year }}年 {{ date.month }} 月</a>
+                    </li>
+                 {% empty %}
+                        暂无归档！
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="widget widget-category">
+            <h3 class="widget-title">分类</h3>
+            {% categorys as category_list  %}
+            <ul>
+                {% for category in category_list %}
+                <li>
+                    <a href="{% url 'article:article_category_posts' category.id %}">{{ category.cname }}<span class="post-count">({{ category.num_posts }})</span></a>
+                </li>
+                {% empty %}
+                    暂时没有分类
+                {% endfor %}
+
+            </ul>
+        </div>
+
+
+        <div class="widget widget-tag-cloud">
+            <h3 class="widget-title">标签云</h3>
+            {% tags as tag_list %}
+            <ul>
+                {% for tag in tag_list %}
+                    <li>
+                        <a href="{% url 'article:article_tag_posts' tag.id %}">{{ tag.tname }}</a>
+                    </li>
+                {% empty %}
+                    暂无标签
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="rss">
+            <a href=""><span class="ion-social-rss-outline"></span> RSS 订阅</a>
+        </div>
+    </aside>
+
+    </div>
+
+</div>
+{% endblock content %}

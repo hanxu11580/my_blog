@@ -1,0 +1,71 @@
+{% extends "base.html" %} {% load staticfiles %}
+<!-- 写入 base.html 中定义的 title -->
+{% block title %} 写文章 {% endblock title %}
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+<!-- 写文章表单 -->
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <br>
+            <!-- 提交文章的表单 -->
+            <form method="post" action="." enctype="multipart/form-data">
+                <!-- Django中需要POST数据的地方都必须有csrf_token -->
+                {% csrf_token %}
+                <!-- 文章标题图 -->
+                <div class="form-group">
+                    <label for="avatar">标题图</label>
+                    <input type="file" class="form-control-file" name="avatar" id="avatar">
+                </div>
+
+                <!-- 文章标题 -->
+                <div class="form-group">
+                    <label for="title">文章标题</label>
+                    <input type="text" class="form-control" id="title" name="title">
+                </div>
+                <!-- 文章分类 -->
+                <div class="form-group">
+                    <label for="title">文章分类</label>
+{#                    <input type="text" class="form-control" id="category" name="category">#}
+
+                    <select class="form-control" id="category" name="category">
+                            <option value="none">请选择文章分类..</option>
+                        {% for categoty in category_list %}
+                            <option value="{{ categoty.id }}">{{ categoty.cname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- 文章标签 -->
+                <div class="form-group">
+                    <label for="title">文章标签</label>
+{#                    <input type="text" class="form-control" id="tag" name="tag">#}
+                    <select class="form-control" id="tag" name="tag" multiple>
+                            <option value="none">请选择文章标签..</option>
+                        {% for tag in tag_list %}
+                            <option value="{{ tag.id }}">{{ tag.tname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- 文章正文 -->
+                <div class="form-group">
+                    <label for="body">文章正文</label>
+                    <!-- 文本区域 -->
+{#                    <textarea type="text" class="form-control" id="body" name="body" rows="12"></textarea>#}
+                    <div>
+                        {{ article_post_form.media }}
+                        {{ article_post_form.body }}
+                    </div>
+                </div>
+                <!-- 提交按钮 -->
+                <button type="submit" class="btn btn-primary">完成</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block script %}
+    <script>
+        $(".django-ckeditor-widget").removeAttr('style');
+    </script>
+{% endblock %}
+{% endblock content %}

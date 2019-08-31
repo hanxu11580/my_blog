@@ -1,0 +1,47 @@
+
+<!-- 定义导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+
+    <!-- 导航栏商标 -->
+{#    <a class="navbar-brand" href="#">我的博客</a>#}
+
+    <!-- 导航入口 -->
+    <div>
+      <ul class="nav nav-pills">
+        <li role="presentation">
+            <a class="navbar-brand" href="#">我的博客</a>
+        </li>
+        <!-- 条目 -->
+        <li role="presentation">
+            <a class="navbar-brand" href="{% url 'article:article_list' %}">文章</a>
+        </li>
+        <li role="presentation">
+            <a class="navbar-brand" href="{% url 'article:article_create' %}">写文章</a>
+        </li>
+
+      {% if request.session.is_login %}
+          <div class="dropdown">
+              <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                欢迎您：{{ request.session.user_name }}
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li><a href="{% url 'userprofile:edit' request.session.user_id %}">设置</a></li>
+                <li><a href="{% url 'userprofile:modify' request.session.user_id %}">修改密码</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="{% url 'userprofile:logout' %}">注销</a></li>
+              </ul>
+           </div>
+      {% else %}
+         <li role="presentation">
+            <a class="navbar-brand" href="{% url 'userprofile:login' %}">登陆</a>
+         </li>
+      {% endif %}
+
+
+      </ul>
+    </div>
+
+  </div>
+</nav>
